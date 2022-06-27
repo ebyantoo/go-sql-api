@@ -169,3 +169,62 @@ func (ex ExerciseService) CreateQuestions(ctx *gin.Context) {
 		"message": "success",
 	})
 }
+
+func (ex ExerciseService) CreateAnswer(ctx *gin.Context) {
+	var answerRequest domain.AnswerRequest
+	paramExerciseID := ctx.Param("exerciseId")
+	exerciseID, err := strconv.Atoi(paramExerciseID)
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "Invalid Exercise id",
+		})
+		return
+	}
+
+	paramQuestionID := ctx.Param("questionId")
+	questionID, err := strconv.Atoi(paramQuestionID)
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "Invalid question id",
+		})
+		return
+	}
+
+	err = ctx.ShouldBind(&answerRequest)
+
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "Invalid Input",
+		})
+		return
+	}
+
+	var question domain.Question
+	err = ex.db.Where("id = ? AND exercise_id = ?", questionID, exerciseID).Take(&question).Error
+	if err != nil {
+		ctx.JSON(404, gin.H{
+			"message": "Question not found",
+		})
+		return
+	}
+
+	userID := int(ctx.Request.Context().Value("user_id").(float64))
+
+	answer := domain.Answer{
+		ExerciseID: exerciseID,
+		QuestionID: questionID,
+		UserID:     userID,
+		Answer:     answerRequest.Answer,
+	}
+
+	if err := ex.db.Create(&answer).Error; err != nil {
+		ctx.JSON(500, gin.H{
+			"message": "failed when submit answer of the question",
+		})
+		return
+	}
+
+	ctx.JSON(201, gin.H{
+		"message": "success",
+	})
+}
