@@ -1,6 +1,7 @@
 package exercise
 
 import (
+	"fmt"
 	"go-sql-api/internal/domain"
 	"strconv"
 	"strings"
@@ -21,21 +22,25 @@ func NewExerciseService(database *gorm.DB) *ExerciseService {
 
 func (ex ExerciseService) GetExercise(ctx *gin.Context) {
 	paramID := ctx.Param("exerciseId")
+	fmt.Println(paramID)
+
 	id, err := strconv.Atoi(paramID)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"message": "Invalid Exercise Id",
+			"message": "invalid exercise id",
 		})
 		return
 	}
+
 	var exercise domain.Exercise
 	err = ex.db.Where("id = ?", id).Preload("Question").Take(&exercise).Error
 	if err != nil {
-		ctx.JSON(404, gin.H{
+		ctx.JSON(400, gin.H{
 			"message": "not found",
 		})
 		return
 	}
+
 	ctx.JSON(200, exercise)
 }
 

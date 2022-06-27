@@ -24,8 +24,8 @@ func main() {
 	userService := user.NewUserService(db)
 
 	// route exercises
-	route.GET("/exercises/:id", middleware.Authentication(userService), exerciseService.GetExercise)
-	route.GET("/exercises/:id/score", middleware.Authentication(userService), exerciseService.GetUserScore)
+	route.GET("/exercises/:exerciseId", middleware.Authentication(userService), exerciseService.GetExercise)
+	route.GET("/exercises/:exerciseId/score", middleware.Authentication(userService), exerciseService.GetUserScore)
 	route.POST("/exercises", middleware.Authentication(userService), exerciseService.CreateExercise)
 
 	// route user
