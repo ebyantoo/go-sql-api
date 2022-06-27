@@ -6,6 +6,8 @@ import (
 	"go-sql-api/internal/middleware"
 	"go-sql-api/internal/user"
 
+	"github.com/newrelic/go-agent/v3/newrelic"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,6 +33,13 @@ func main() {
 	// route user
 	route.POST("/register", userService.Register)
 	route.POST("/login", userService.Login)
+
+	app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("Your Application Name"),
+		newrelic.ConfigLicense("19df67a2b6761d4516949197e727cd75c01eNRAL"),
+		newrelic.ConfigDistributedTracerEnabled(true),
+		newrelic.ConfigInfoLogger(w)
+	)
 
 	// listen and serve on 0.0.0.0:8080
 	route.Run()

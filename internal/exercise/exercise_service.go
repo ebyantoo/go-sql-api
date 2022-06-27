@@ -71,7 +71,7 @@ func (ex ExerciseService) CreateExercise(ctx *gin.Context) {
 }
 
 func (ex ExerciseService) GetUserScore(ctx *gin.Context) {
-	paramExerciseID := ctx.Param("id")
+	paramExerciseID := ctx.Param("exerciseId")
 	exerciseID, err := strconv.Atoi(paramExerciseID)
 	if err != nil {
 		ctx.JSON(400, gin.H{
@@ -80,7 +80,7 @@ func (ex ExerciseService) GetUserScore(ctx *gin.Context) {
 		return
 	}
 	var exercise domain.Exercise
-	err = ex.db.Where("id = ?", exerciseID).Preload("Questions").Take(&exercise).Error
+	err = ex.db.Where("id = ?", exerciseID).Preload("Question").Take(&exercise).Error
 	if err != nil {
 		ctx.JSON(404, gin.H{
 			"message": "not found",
