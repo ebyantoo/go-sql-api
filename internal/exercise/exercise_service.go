@@ -74,7 +74,7 @@ func (ex ExerciseService) GetUserScore(ctx *gin.Context) {
 	}
 
 	var score int
-	for _, question := range exercise.Questions {
+	for _, question := range exercise.Question {
 		if strings.EqualFold(question.CorrectAnswer, mapQA[question.ID].Answer) {
 			score += question.Score
 		}

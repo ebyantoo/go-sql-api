@@ -26,7 +26,6 @@ func main() {
 	// route exercises
 	route.GET("/exercises/:id", middleware.Authentication(userService), exerciseService.GetExercise)
 	route.GET("/exercises/:id/score", middleware.Authentication(userService), exerciseService.GetUserScore)
-
 	// route user
 	route.POST("/register", userService.Register)
 	route.POST("/login", userService.Login)
