@@ -20,7 +20,7 @@ func NewExerciseService(database *gorm.DB) *ExerciseService {
 }
 
 func (ex ExerciseService) GetExercise(ctx *gin.Context) {
-	paramID := ctx.Param("id")
+	paramID := ctx.Param("exerciseId")
 	id, err := strconv.Atoi(paramID)
 	if err != nil {
 		ctx.JSON(400, gin.H{
@@ -29,7 +29,7 @@ func (ex ExerciseService) GetExercise(ctx *gin.Context) {
 		return
 	}
 	var exercise domain.Exercise
-	err = ex.db.Where("id = ?", id).Preload("Questions").Take(&exercise).Error
+	err = ex.db.Where("id = ?", id).Preload("Question").Take(&exercise).Error
 	if err != nil {
 		ctx.JSON(404, gin.H{
 			"message": "not found",
