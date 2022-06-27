@@ -39,6 +39,32 @@ func (ex ExerciseService) GetExercise(ctx *gin.Context) {
 	ctx.JSON(200, exercise)
 }
 
+func (ex ExerciseService) CreateExercise(ctx *gin.Context) {
+	var exerciseRequest domain.ExerciseRequest
+	err := ctx.ShouldBind(&exerciseRequest)
+
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "Invalid Input",
+		})
+		return
+	}
+
+	exercise := domain.Exercise{
+		Title:       exerciseRequest.Title,
+		Description: exerciseRequest.Description,
+	}
+
+	if err := ex.db.Create(&exercise).Error; err != nil {
+		ctx.JSON(500, gin.H{
+			"message": "failed when create exercise",
+		})
+		return
+	}
+
+	ctx.JSON(201, exercise)
+}
+
 func (ex ExerciseService) GetUserScore(ctx *gin.Context) {
 	paramExerciseID := ctx.Param("id")
 	exerciseID, err := strconv.Atoi(paramExerciseID)
@@ -81,5 +107,60 @@ func (ex ExerciseService) GetUserScore(ctx *gin.Context) {
 	}
 	ctx.JSON(200, gin.H{
 		"score": score,
+	})
+}
+
+func (ex ExerciseService) CreateQuestions(ctx *gin.Context) {
+	var questionRequest domain.QuestionRequest
+	paramExerciseID := ctx.Param("exerciseId")
+	exerciseID, err := strconv.Atoi(paramExerciseID)
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "invalid exercise id",
+		})
+		return
+	}
+
+	err = ctx.ShouldBind(&questionRequest)
+
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "Invalid Input",
+		})
+		return
+	}
+
+	var exercise domain.Exercise
+	err = ex.db.Where("id = ?", exerciseID).Take(&exercise).Error
+	if err != nil {
+		ctx.JSON(404, gin.H{
+			"message": "exercise id not found",
+		})
+		return
+	}
+
+	userID := int(ctx.Request.Context().Value("user_id").(float64))
+
+	question := domain.Question{
+		ExerciseID:    exerciseID,
+		Body:          questionRequest.Body,
+		OptionA:       questionRequest.OptionA,
+		OptionB:       questionRequest.OptionB,
+		OptionC:       questionRequest.OptionC,
+		OptionD:       questionRequest.OptionD,
+		CorrectAnswer: questionRequest.CorrectAnswer,
+		CreatorId:     userID,
+		Score:         10,
+	}
+
+	if err := ex.db.Create(&question).Error; err != nil {
+		ctx.JSON(500, gin.H{
+			"message": "failed when create user",
+		})
+		return
+	}
+
+	ctx.JSON(201, gin.H{
+		"message": "success",
 	})
 }
